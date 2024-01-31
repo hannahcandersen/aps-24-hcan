@@ -6,8 +6,7 @@ Date:   31/01 2024
 Description: 
 - Input: 
     - n: First line. Number of students. 1 > n > 10^9 
-    - s: n times student numbers (s). No student number will appear more than once
-        
+    - s: n times student numbers (s). No student number will appear more than once      
 - Output: 
     - Minimum number of swaps required to arrange the students in increasing order by student number. 
     - Must be accomplished only by successively swapping pairs of consecutive students. 
