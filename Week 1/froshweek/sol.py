@@ -13,6 +13,9 @@ Description:
     - Must be accomplished only by successively swapping pairs of consecutive students. 
 """
 
+swaps = 0
+
+
 def mergeSort(myList):
     """
     Inspired by: https://www.educative.io/answers/merge-sort-in-python
@@ -20,13 +23,11 @@ def mergeSort(myList):
     """
     
     global swaps 
-    swaps = 0
     
     if len(myList) > 1:
         mid = len(myList) // 2 # integer division
         left = myList[:mid]
         right = myList[mid:]
-        print(left, right)
 
         # Recursive call on each half
         mergeSort(left)
