@@ -10,7 +10,6 @@ but a queen can threaten another even if there is a hole on the path between the
     - N, M: Size of one side of the boards (3 <= N <= 12), number of holes. 
     - M * Holes: x,y 
     - End: 0 0
-    
 - Output:
     - Number of ways to place the queens on the board so that no queen threatens another.
 
@@ -22,9 +21,16 @@ def search(row, n, m, holes, column, diag1, diag2):
 
     Args:
         y: Current row to consider
+        n: Size of the board (n x n)
+        m: Number of holes
+        holes: Set of holes
+        column: Columns that contain a queen
+        diag1: Diagonals (one way) that contain a queen
+        diag2: Diagonals (other way) that contain a queen
         
     Complexity: Complete search, O(2^n)
     """
+    
     count = 0 # Number of solutions
     
     # Successfully added a queen to each row
@@ -38,7 +44,7 @@ def search(row, n, m, holes, column, diag1, diag2):
             continue
         
         # Check if current column and diagonals are occupied - queen can't be placed
-        if column[col] or diag1[row+col] or diag2[row-col+n-1]: # See picture to understand diag1 and diag2
+        if column[col] or diag1[row+col] or diag2[row-col+n-1]:
             continue
         
         # Spot available, place queen and update column and diagonals
@@ -52,30 +58,29 @@ def search(row, n, m, holes, column, diag1, diag2):
     
     return count
 
-done = False 
-
 # Handle one test case each iteration
-while not done:
+while True:
     n, m = map(int, input().split())
-    column = [False] * n         # Columns that contain a queen
-    diag1 =  [False] * (2*n-1)   # Diagonals that contain a queen
-    diag2 =  [False] * (2*n-1)   # Diagonals that contain a queen
+    
+    # Check if input is 0 0, if so we are done
+    if n == 0 and m == 0: 
+        break
+    
+    column = [False] * n         
+    diag1 =  [False] * (2*n-1)   
+    diag2 =  [False] * (2*n-1)   
     holes = set() 
 
     # Zero holes, handle special case
     if m == 0: 
-        done = True
         print(search(0, n, m, holes, column, diag1, diag2)) 
-        break
+        continue
     
     # More than zero holes, read holes and add to set
-    for _ in range(m+1):
+    for _ in range(m):
         x, y = map(int, input().split())
-
-        # End of test case
-        if x == 0 and y == 0: 
-            done = True
-            print(search(0, n, m, holes, column, diag1, diag2))
-            break
-        
         holes.add((x, y))
+
+    # Test case done - handle it
+    print(search(0, n, m, holes, column, diag1, diag2))
+    
