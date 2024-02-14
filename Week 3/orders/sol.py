@@ -22,7 +22,7 @@ Find out what was ordered given the total cost of the order and the cost of each
 import sys
 sys.setrecursionlimit(10**6)
 
-#TODO: MAke FASTER. Look at the solution for knapsack problem or lrucache
+# TODO: MAke FASTER. Look at the solution for knapsack problem or lrucache
 
 
 def find_order(originalPrice, p, currentOrder, index, num_of_valid_orders, valid_order):
