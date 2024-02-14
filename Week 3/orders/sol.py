@@ -22,8 +22,6 @@ Find out what was ordered given the total cost of the order and the cost of each
 import sys
 sys.setrecursionlimit(10**6)
 
-# TODO: MAke FASTER. Look at the solution for knapsack problem or lrucache
-
 
 def find_order(originalPrice, p, currentOrder, index, num_of_valid_orders, valid_order):
     """
@@ -39,41 +37,43 @@ def find_order(originalPrice, p, currentOrder, index, num_of_valid_orders, valid
     
     # Base case: Price is negative
     if p < 0:
-        return num_of_valid_orders, valid_order
+        return 
     
     # Base case: We have found a valid order
     if p == 0:
         num_of_valid_orders[originalPrice] += 1
         valid_order[originalPrice] = currentOrder
-        return num_of_valid_orders, valid_order
+        return 
     
     # Base case: We have considered all items
     elif index == N:
-        return num_of_valid_orders, valid_order
+        return 
     
     # Memoization: Check if we have already calculated the number of valid orders for the current price
     if num_of_valid_orders[p] != 0:
-        return num_of_valid_orders, valid_order
+        return 
     
     # Recursive case: We can either use the current item or not
     ## Dont use it, check next item on menu
-    num_of_valid_orders, valid_order = find_order(originalPrice, p, currentOrder, index + 1, num_of_valid_orders, valid_order)
+    find_order(originalPrice, p, currentOrder, index + 1, num_of_valid_orders, valid_order)
     ## Use it, add to current order and check same item on menu again 
-    num_of_valid_orders, valid_order = find_order(originalPrice, p - menu[index], currentOrder + [index + 1], index, num_of_valid_orders, valid_order)
+    find_order(originalPrice, p - menu[index], currentOrder + [index + 1], index, num_of_valid_orders, valid_order)
     
-    return num_of_valid_orders, valid_order
+    return 
 
 
 N = int(input())
 menu = list(map(int, input().split()))
 M = int(input())
 orders = list(map(int, input().split()))
+maxOrder = max(orders)
+
+# Memoization - reuse for all orders
+num_of_valid_orders = [0] * (maxOrder+1)      
+valid_order = [[] for _ in range(maxOrder+1)] 
 
 # Process orders
 for order in orders:
-    num_of_valid_orders = [0] * (order+1) # Number of valid orders for 0 - price of order
-    valid_order = [[] for _ in range(order + 1)]
-    
     find_order(order, order, [], 0, num_of_valid_orders, valid_order) 
    
     if num_of_valid_orders[order] > 1:
