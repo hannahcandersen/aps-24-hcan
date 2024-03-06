@@ -1,3 +1,31 @@
+"""
+Assignment: https://itu.kattis.com/courses/BAPS/APS24/assignments/ehr4an/problems/waif
+Author: Hannah Camilla Andersen (hcan)
+Date:   06/03 2024
+
+Description:
+Daycare center, where only a certain amount of toys from each category are allowed. 
+Not all toys are liked by all children.
+Find the maximum amount of children who can be satisfied with the toys available.
+- Input:
+    - First line with 3 integers
+        - N: number of children         (1 ≤ N)
+        - M: number of toys             (M ≤ 100)
+        - P: number of toy categories   (0 ≤ P ≤ M)
+        Both children and toys are numbered starting from 1
+    - N lines with integers, where line 1 is child 1, line 2 is child 2, etc.
+        - k: Number of toys the child likes       (1 ≤ k ≤ M) 
+        - t1 t2 ... tk: the toys the child likes  (1 ≤ ti ≤ M)
+    - P lines with integers, where line 1 is category 1, line 2 is category 2, etc.
+        - l: Number of toys in the category       (1 ≤ l ≤ M)
+        - t1 t2 ... tl: the toys in the category  (1 ≤ ti ≤ M)
+        - r: At most r of the toys in the category can be used (1 ≤ r ≤ l ≤ m) 
+- Output:
+    - Maximum number of children that can be satisfied with the toys available
+
+Solve it as a maximum matching problem, where the children are the left side and the toy categories are the right side containing the toys.
+Use the Ford-Fulkerson algorithm to find the maximum flow in the graph.
+"""
 from collections import defaultdict
 from flow import flow
 
