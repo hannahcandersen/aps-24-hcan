@@ -27,7 +27,7 @@ def bfs(graph, src, dest, mincap=0):
     """
     
     # Initialize the parent dictionary with the source node as its own parent
-    parent = {src:src} 
+    parent = {src:src} # Used to restructure the path to be able to return it
 
     # Initialize the current layer with the source node
     layer = [src] 
