@@ -4,21 +4,23 @@
     Can be used for graphs represented as:
       graph = defaultdict(lambda: defaultdict(int)) # vertex -> (vertex -> capacity)
       
-    Code taken from: https://github.itu.dk/algorithms/aps-24/blob/main/060-network-flows/code/flow.py
+    Most code taken from: https://github.itu.dk/algorithms/aps-24/blob/main/060-network-flows/code/flow.py, rewritten to use deque instead of list
 """
 from collections import defaultdict
 
 ### BREADTH-FIRST SEARCH ###
-def bfs(graph, src, dest, mincap=0): 
+from collections import deque
+
+def bfs(graph, src, sink, mincap=0): 
     """
     Implements the Breadth-First Search algorithm to find a path from a source node to a destination node in a graph.
     Works by exploring all the vertices at the current depth/level before moving on to vertices at the next depth level.
 
     Args:
-        graph (dict): The graph, represented as a dictionary where the keys are nodes and the values are dictionaries 
-                      representing the adjacent nodes and their capacities.
-        src (hashable): The source node from which the path starts.
-        dest (hashable): The destination node where the path ends.
+        graph (dict):           The graph, represented as a dictionary where the keys are nodes and the values are dictionaries 
+                                representing the adjacent nodes and their capacities.
+        src (hashable):         The source node from which the path starts.
+        sink (hashable):        The destination node where the path ends.
         mincap (int, optional): The minimum capacity that an edge must have to be considered.
 
     Returns:
@@ -26,53 +28,41 @@ def bfs(graph, src, dest, mincap=0):
                is the path if a path has been found or the set of visited nodes if no path has been found.
     """
     
-    # Initialize the parent dictionary with the source node as its own parent
-    parent = {src:src} # Used to restructure the path to be able to return it
+    # Parent dictionary storing the nodes' parents. Used to reconstruct the path to be able to return it
+    parent = {src:src} 
 
-    # Initialize the current layer with the source node
-    layer = [src] 
+    # Use a queue to keep track of the nodes to visit
+    queue = deque([src]) 
 
-    # While there are nodes in the current layer
-    while layer:
-        # Initialize the next layer
-        nextlayer = []
+    # While there are nodes in the queue
+    while queue:
+        current_node = queue.popleft()
 
-        # For each node in the current layer
-        for u in layer:
-            # For each adjacent node and its capacity
-            for v,cap in graph[u].items():
-                # If the capacity is greater than the minimum capacity and the node has not been visited
-                if cap > mincap and v not in parent:
-                    # Set the parent of the node
-                    parent[v] = u
+        for neighbor,cap in graph[current_node].items():
+            # If the capacity is greater than the minimum capacity and the node has not been visited
+            if cap > mincap and neighbor not in parent:
+                parent[neighbor] = current_node
+                queue.append(neighbor)
 
-                    # Add the node to the next layer
-                    nextlayer.append(v)
+                # If the node is the sink - Reconstruct the path and return it
+                if neighbor == sink:
+                    path =  []
 
-                    # If the node is the destination
-                    if v == dest:
-                        # Initialize the path
-                        p =  []
+                    # Start from the sink
+                    current = sink
 
-                        # Start from the destination
-                        current_vertex = dest
+                    while src != current:
+                        # Add the edge from the parent to the current node to the path
+                        path.append((parent[current],current))
 
-                        # While the source has not been reached
-                        while src != current_vertex:
-                            # Add the edge from the parent to the current node to the path
-                            p.append((parent[current_vertex],current_vertex))
+                        # Move on to the parent
+                        current = parent[current]
 
-                            # Move to the parent
-                            current_vertex = parent[current_vertex]
+                    # Return true that a path has been found and the path
+                    return (True,path)
 
-                        # Return that a path has been found and the path
-                        return (True,p)
-
-        # Move to the next layer
-        layer = nextlayer
-
+    # If no path is found, return False and the set of visited nodes
     return (False,set(parent))
-    
     
     
 ### FORD-FULKERSON ALGORITHM ###
@@ -83,47 +73,49 @@ def flow(orggraph, src, dest):
     and augmenting the flow along these paths until no more augmenting paths can be found.
 
     Args:
-        orggraph (dict): The original graph, represented as a dictionary where the keys are nodes and the values 
-                         are dictionaries representing the adjacent nodes and their capacities.
-        src (hashable): The source node from which the flow starts.
-        dest (hashable): The destination node where the flow ends.
+        orggraph (dict):    The original graph, represented as a dictionary where the keys are nodes and the values 
+                            are dictionaries representing the adjacent nodes and their capacities.
+        src (hashable):     The source node from which the flow starts.
+        dest (hashable):    The destination node where the flow ends.
 
     Returns:
         tuple: A tuple where the first element is the maximum flow, the second element is the residual graph, 
                and the third element is the set of visited nodes.
     """
-    # Create a new graph from the original graph
+    # Create residual graph
     graph = defaultdict(lambda: defaultdict(int))
     maxcapacity = 0
-    # Copy the original graph to the new graph and find the maximum capacity
+    
+    # Copy the original graph to the residual graph and find the maximum capacity
     for u, d in orggraph.items():
         for v, c in d.items():
             graph[u][v] = c
             maxcapacity = max(maxcapacity, c)
 
-    # Initialize the current flow to 0
+    # Start flow at 0
     current_flow = 0
+    
     # Initialize the minimum capacity to the maximum capacity. To make it faster and more likely to find a high flow path
     mincap = maxcapacity
-    # While there are paths from the source to the destination
+    
     while True:
-        # Find a path from the source to the destination
+        # Check if there is a path with the current minimum capacity
         ispath, p_or_seen = bfs(graph, src, dest, mincap)
-        # If no path was found
+        
+        ## Path was not found
         if not ispath:
-            # If the minimum capacity is greater than 0
+            # Halve the minimum capacity and try again with lower minimum capacity
             if mincap > 0:
-                # Halve the minimum capacity
                 mincap = mincap // 2
-                # Continue with the next iteration of the loop
                 continue
+            # Minimum capacity is 0, no more paths can be found. Return the current flow, the residual graph, and the set of visited nodes
             else:
-                # Return the current flow, the residual graph, and the set of visited nodes
                 return (current_flow,
                         {a: {b: c - graph[a][b] for b, c in d.items() if graph[a][b] < c}
                          for a, d in orggraph.items()},
                         p_or_seen)
-        # If a path was found
+                
+        ## Path was found
         p = p_or_seen
         # Find the minimum capacity of the path
         saturation = min(graph[u][v] for u, v in p)
