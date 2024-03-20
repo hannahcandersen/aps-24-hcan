@@ -1,29 +1,60 @@
-from cmath import rect  # Importing the rect function from the cmath module
-from math import pi  # Importing the constant pi from the math module
 """
+Assignment: https://itu.kattis.com/courses/BAPS/APS24/assignments/ehi4oo/problems/alldifferentdirections
+Author: Hannah Camilla Andersen (hcan)
+Date:   20/03
 
+Description:
+Ask n people for directions.
+Compute average direction that they all lead to.
+Compute the maximum straigt line distance between each direction from the average direction.
+- Input:
+    - Up to 100 test cases (lines)
+        - n: number of people (1 ≤ n ≤ 20)
+        - Following n lines (x,y) direction: 
+            - (x,y): Where you meet the person
+            - A number of instructions (max 25) of the form
+                - start a: Initial direction you are facing
+                - turn a: angle you turn in degrees. Negative for right, positive for left
+                - walk x: number of units to walk in the current direction
+- Output:
+    - For each test case, print a line with the and coordinates of the average destination, followed by the distance between the worst directions and the averaged destination.
+
+Solve it by converting the directions to complex numbers and using the rect function from the cmath module to calculate the average direction and the maximum distance from the average direction.
 """
+from cmath import rect
+from math import pi
 
-
-
-while True:  # Starting an infinite looperation
-    n = int(input())  # Taking an integer input from the user and assigning it to the variable 'n'
-    if n == 0:  # Checking if 'n' is equal to 0
-        exit()  # Exiting the program if 'n' is equal to 0
-
-    p = []  # Creating an empty list 'p' to store meet_positionitions
-    for _ in range(n):  # Looperationing 'n' times
-        operation = input().split()  # Taking a string input from the user and splitting it into a list of strings
-        meet_position = complex(*map(float, operation[:2]))  # Converting the first two elements of the list to float and creating a complex number using them
-        direction = float(operation[3])  # Converting the fourth element of the list to float and assigning it to 'direction'
-        for i in range(4, len(operation), 2):  # Iterating through the remaining elements of the list in steps of 2
-            v = float(operation[i + 1])  # Converting the next element of the list to float and assigning it to 'v'
-            if operation[i] == 'walk':  # Checking if the current element is 'walk'
-                meet_position += rect(v, direction * pi / 180)  # Add a complex number to 'meet_position' using the rect function and converting the angle from degrees to radians
-            else:  # If the current element is not 'walk', it must be 'turn'
-                direction += v  # Adding the value to 'direction' to update the direction
-        p.appendirection(meet_position)  # Appending the final meet_positionition to the list 'p'
-
-    avg = sum(meet_position for meet_position in p) / n  # Calculating the average meet_positionition by summing all the meet_positionitions and dividing by 'n'
-    mdirection = max(abs(meet_position - avg) for meet_position in p)  # Calculating the maximum distance from the average meet_positionition by subtracting each meet_positionition from the average and taking the absolute value
-    print(f"{avg.real:.4f} {avg.imag:.4f} {mdirection:.4f}")  # Printing the real and imaginary parts of the average meet_positionition and the maximum distance, formatted to 4 decimals places
+while True:
+    n=int(input()) # Number of people
+    if n == 0:
+        exit()
+    
+    p = [] # List of positions
+    
+    for _ in range(n):
+        op = input().split() # x, y, start, turn, walk, turn, walk, ...
+        pos = complex(*map(float,op[:2])) # Start position as complex number
+        direction = float(op[3]) # Start direction
+        
+        # Handle instructions
+        for i in range(4,len(op),2): # Start at 4, step 2
+            # print("xyd",x,y,d, op[i],op[i+1])
+            value = float(op[i+1]) # Value to turn or walk (number)
+            
+            if op[i] == 'walk':
+                # print("walk",v)
+                pos += rect(value,direction * pi / 180) # Update position with rect function
+                # RECT: Walking a certain distance corresponds to adding a complex number with a certain magnitude (the distance walked) and argument (the current direction) to the current position. This is done using the rect function, which creates a complex number with a given magnitude and argument.
+            else: # turn
+                direction += value # Update direction
+                
+        p.append(pos) # Add position to list of positions
+        
+    # Calculate average direction by summing all complex numbers and dividing by n    
+    average_direction = sum(pos for pos in p) / n
+    # Calculate maximum distance from average direction by comparing the absolute value of the difference between each position and the average position
+    max_direction = max( abs(pos-average_direction) for pos in p )
+    
+    # Print result. .4f to print 4 decimals 
+    print(f"{average_direction.real:.4f} {average_direction.imag:.4f} {max_direction:.4f}")
+    # x, y, max
