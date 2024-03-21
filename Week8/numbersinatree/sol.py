@@ -21,29 +21,27 @@ The root is at index 1.
 The left child of a node at index i is at index 2*i.
 The right child of a node at index i is at index 2*i + 1.
 When the array index is found, the label of the node is the maximum label minus the index.
-
-Run-Time-Error
 """
 
-inp = input()
-# Only height is given
-if len(inp) <= 2:
-    h = int(inp)
-    print(2**(h+1)-1) # Number of nodes in a perfect binary tree
-else:
-    h, path = inp.split()
-    h = int(h)
-    max_label = 2**(h+1) - 1 # Number of nodes in a perfect binary tree
+inp = input().split()
+
+if len(inp) == 2:
+    h, path = inp
+else: # No path given
+    path = False
     
-    # Start from root. This would be index 1 in an array representation
-    node_i = 1
+h = int(inp[0])
+max_label = 2**(h+1) - 1 # Number of nodes in a perfect binary tree
     
+# Start from root. This would be index 1 in an array representation
+idx = 1
+    
+if path:
     for direction in path:
         if direction == 'L':
-            node_i = 2*node_i # Index of left child
-        else: # direction == 'R'
-            node_i = 2*node_i + 1 # Index of right child
+            idx = 2 * idx # Left child index
+        if direction == 'R':
+            idx = 2 * idx + 1 # Right child index
 
-    # Calculate the label of the node
-    print((max_label + 1) - node_i)
+print(max_label - (idx - 1))
     
