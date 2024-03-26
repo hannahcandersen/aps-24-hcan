@@ -115,29 +115,41 @@ class SegmentTree(IntervalDS):
 
 class FenwickTree(IntervalDS):
 
-    def __init__(self, n):
-        self.A = [0 for _ in range(n + 1)]
+    def __init__(self, org_array):
+        # Initializes the Fenwick Tree with zeros. 1-indexed.
+        self.Tree = [0 for _ in range(len(org_array) + 1)]
+        # Add all elements in the original array to the tree.
+        for i, value in enumerate(org_array):
+            self.add(i, value)
 
     def get(self, i):
+        # Returns the value at index i in the original array.
         return self.prefix_sum(i) - self.prefix_sum(i - 1)
 
-    def update(self, i, k):
-        self.add(i, k - self.get(i))
+    def update(self, i, val):
+        # Updates the value at index i to k.
+        self.add(i, val - self.get(i))
         
-    def add(self, i, k):
-        s = 0
-        while i < len(self.A):
-            self.A[i] += k
-            i += i & -i
+    def add(self, i, val):
+        # Adds a value k to the element at index i in the original array.
+        # This involves updating all relevant elements in the tree to ensure that prefix sums are maintained correctly.
+        i = i + 1 # 1-indexed
+        while i < len(self.Tree): # Loop until we reach the end of the tree
+            self.Tree[i] += val
+            i += i & -i # Parent increment by least significant bit
 
     def prefix_sum(self, i):
-        s = 0
-        while i > 0:
-            s += self.A[i]
-            i -= i & -i
-        return s
+        # Calculates the prefix sum of the array up to index i.
+        # This involves traversing the tree from the element corresponding to i, moving towards the root, and summing the values of the visited nodes.
+        sum = 0
+        while i > 0: # Loop until we reach the root
+            sum += self.Tree[i]
+            i -= i & -i # Left neighbor decrement by least significant bit
+        return sum
 
     def query(self, i, j):
+        # Returns the sum of the elements in the original array between indices i and j, inclusive.
+        # It calculates this by finding the difference between the prefix sums up to j and up to but excluding i.
         return self.prefix_sum(j) - self.prefix_sum(i - 1)
         
 
